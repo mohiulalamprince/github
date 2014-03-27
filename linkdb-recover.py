@@ -528,18 +528,24 @@ class DownloadLinkPathRecover():
 
         last_line = None
         last_line_byte_info = None
-        try:
-            with open(LINK_EXTRACTION_BLOCK_DIRECTORY + "\\" + str(len(link_extraction_block_filelist)) + ".urlBlock") as file_pointer:
-                for line in file_pointer:
-                    if (line.find("</ANCHOR_TEXT>")):
-                        last_line = line
-
-            last_line_byte_info = last_line.split("SOURCE_URL ")[1].split(" <ANCHOR_TEXT>")[0]
-        except:
-            print "[Failed]"
-            if (DEBUG == True):
-                print str(traceback.print_exc(file=sys.stdout))
-            return
+        
+        for counter in range(0, 10):        
+            length = len(link_extraction_block_filelist) - counter
+            try:
+                with open(LINK_EXTRACTION_BLOCK_DIRECTORY + "\\" + str(length) + ".urlBlock") as file_pointer:
+                    for line in file_pointer:
+                        if (line.find("</ANCHOR_TEXT>")):
+                            last_line = line
+                if (last_line == None):
+                    continue
+                else :
+                    last_line_byte_info = last_line.split("SOURCE_URL ")[1].split(" <ANCHOR_TEXT>")[0]
+                    break
+            except:
+                print "[Failed]"
+                if (DEBUG == True):
+                    print str(traceback.print_exc(file=sys.stdout))
+                return
 
         download_linkpath_filelist = []
         DOWNLOAD_LINKPATH_DIRECTORY = "".join(CRAWLER_LINKDB_PATH
