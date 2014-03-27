@@ -140,16 +140,16 @@ class RunDirectoryDetector(Frame):
 
         print "Profile Parser Starting ..."
         
-        os.system("call RunProfileParser.bat")
+        #os.system("call RunProfileParser.bat")
         
-        if not self.isProcessFinished(os.path.join(workingDir, "Source/ProfileParser/ProfileParser/STATUS.txt")):
-            showinfo("Error", "Profile Parser Not Successfully Finished.\nYou Have to Complete This Process Manually.")
-            sys.exit(1)
-            return
+        #if not self.isProcessFinished(os.path.join(workingDir, "Source/ProfileParser/ProfileParser/STATUS.txt")):
+        #    showinfo("Error", "Profile Parser Not Successfully Finished.\nYou Have to Complete This Process Manually.")
+        #    sys.exit(1)
+        #    return
         
-        print "Profile Parsing Finished."
+        #print "Profile Parsing Finished."
         
-        showinfo("Info", "All Process Successfully Finished.")
+        showinfo("Info", "Directory Detector Successfully Finished.")
         sys.exit(0)                
               
 class FileChooser(Dialog):

@@ -9,8 +9,8 @@ class Parser:
     
         self.speicalStartChar = ('-', ':', '+', '(', '.', '[')
         self.keywordsForPhone = ("telephone", "tel", "mobile phone", "mobile number", "phone number", "phone", "mobile", "cell", "p:", "t:", "contact number")
-        self.keywordsForHTMLTags = ("tel", "phone", "mobile", "skype_pnh_print_container")
-        self.htmlTags = ("img", "span")
+        self.keywordsForHTMLTags = ("tel", "phone", "mobile")
+        self.htmlTags = ("img", "span", "div")
         self.isPrintLog = True
         self.isKeywordInTag = False
         self.isKeywordInText = False
@@ -20,6 +20,9 @@ class Parser:
         self.keywordFreTag = Hash2D()
         self.clear()
         self.phnList = []
+        self.lastDataFoundKeyword = ""
+        self.lastDataFoundIdx = 0
+        self.countDataLine = 0
         
     def clear(self):
         
@@ -29,7 +32,10 @@ class Parser:
         self.preKeyword = ""
         self.tagKey = ""
         self.keywordFrePhone.clear()
-        self.keywordFreTag.clear()        
+        self.keywordFreTag.clear()
+        self.lastDataFoundKeyword = ""
+        self.lastDataFoundIdx = 0
+        self.countDataLine = 0
         
     def printLog(self, logMsg):
         
@@ -67,6 +73,29 @@ class Parser:
             return self.getFileName(thisData[lbIDX:ubIDX])
          
         return ""
+
+    def getImageSrcValue(self, thisData, srcTag):
+        
+        lbIDX = 0
+        ubIDX = 0
+        
+        lbIDX = thisData.find(srcTag)
+        
+        if lbIDX != -1:
+            
+            lbIDX = thisData.find("\"", lbIDX + len(srcTag))
+            
+            if lbIDX == -1:
+                return ""
+            
+            ubIDX = thisData.find("\"", lbIDX + 1)
+            
+            if ubIDX == -1:
+                return ""
+            
+            return thisData[lbIDX:ubIDX]
+         
+        return ""
             
     def getKeywordFromTagData(self, thisData):
         
@@ -82,7 +111,15 @@ class Parser:
         if tagIndex == -1:
             return ""
             
+        #srcValue = self.getSrcValue(thisData)
+        #print "SRC_VALUE: ", srcValue
+
         srcValue = self.getSrcValue(thisData)
+
+        if len(srcValue) == 0:
+            srcValue = self.getImageSrcValue(thisData, "class")
+
+        #print "Data: ", thisData
         #print "SRC_VALUE: ", srcValue
         
         for key in self.keywordsForHTMLTags:
@@ -119,6 +156,11 @@ class Parser:
         
         #print "Prekey: ", self.preKeyword
         #print "TagKey: ", self.tagKey
+        
+        #print "\nLastDataFoundKeyword: ", self.lastDataFoundKeyword
+        #print "LastDataFoundIDX: ", self.lastDataFoundIdx
+        #print "DataLineCount: ", self.countDataLine
+        
         keyPhoneLen = len(self.keywordsForPhone)
         
         for i in range(keyPhoneLen):
@@ -129,7 +171,7 @@ class Parser:
                 
                 self.isKeywordInText = True
                 self.preKeyword = keyword
-                print "Keyword Found: ", self.preKeyword
+                #print "Keyword Found: ", self.preKeyword
                 strValue = thisData[len(keyword):]
                 
                 idx = strValue.find(":")
@@ -139,8 +181,16 @@ class Parser:
                 
                 if self.isNumber(strValue):
                     #print "KeyWord Data"
-                    self.keywordFrePhone.insert(self.preKeyword, strValue.strip())                    
-                    self.phnList.append(strValue.strip())
+                    
+                    if self.lastDataFoundKeyword != self.preKeyword or (self.countDataLine - self.lastDataFoundIdx) > 2:
+                        
+                        self.keywordFrePhone.insert(self.preKeyword, strValue.strip())                   
+                        self.lastDataFoundKeyword = self.preKeyword
+                        self.lastDataFoundIdx = self.countDataLine
+                    
+                    #self.countDataLine += 1
+                        
+                    self.phnList.append(strValue.strip())  #just for test
                     #self.preKeyword = ""
                     #self.tagKey = ""
                 break
@@ -150,12 +200,27 @@ class Parser:
             if self.isNumber(thisData):
                 #print "Non Keyword Data"
                 if len(self.preKeyword) > 0:
-                    self.keywordFrePhone.insert(self.preKeyword, thisData)
-                    self.phnList.append(thisData)                   
+                    
+                    if self.lastDataFoundKeyword != self.preKeyword or (self.countDataLine - self.lastDataFoundIdx) > 2:
+                        self.keywordFrePhone.insert(self.preKeyword, thisData)
+                        
+                        self.lastDataFoundKeyword = self.preKeyword
+                        self.lastDataFoundIdx = self.countDataLine
+                    
+                    #self.countDataLine += 1
+                        
+                    self.phnList.append(thisData)              #just for test     
                     
                 elif len(self.tagKey) > 0:
-                    self.keywordFreTag.insert(self.tagKey, thisData)
                     
+                    if self.lastDataFoundKeyword != self.preKeyword or (self.countDataLine - self.lastDataFoundIdx) > 2:
+                    
+                        self.keywordFreTag.insert(self.tagKey, thisData)
+                    
+                        self.lastDataFoundKeyword = self.preKeyword
+                        self.lastDataFoundIdx = self.countDataLine
+                    
+                    #self.countDataLine += 1
             
             self.preKeyword = ""
             self.tagKey = ""
@@ -174,6 +239,7 @@ class Parser:
         totalTimeScript = 0
         totalProcessTextTime = 0
         totalSignSearchTime = 0
+        self.countDataLine = 0
                 
         while True:
             
@@ -246,8 +312,10 @@ class Parser:
             strData = strData.replace("&nbsp;", "").strip()
             
             if len(strData) > 1:                
-                print "TEXT_DATA: ", strData
+                #print "TEXT_DATA: ", strData
+                self.countDataLine += 1
                 self.processData(strData)
+                
                 
             #totalProcessTextTime += time.clock() - stProcessText
         
@@ -259,7 +327,7 @@ class Parser:
 
 if __name__ == "__main__":
     
-    fileName = r"E:/DirectoryDetectorBugList/10.html"
+    fileName = r"E:/DirectoryDetectorBugList/11.htm"
     inFile = open(fileName, "r")
     parser = Parser()
     data = inFile.read()

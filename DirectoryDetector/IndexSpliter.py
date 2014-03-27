@@ -13,6 +13,8 @@ class IndexSpliter:
         self.lastContentIndexBlock = 0
         self.totalContentSZ = 0
         self.totalMissingDataSZ = 0
+        #self.debugFile = open(os.path.join(outputDirectory, "DEBUGFILE_24.txt"), "wb")
+        #self.debugFileForHost = open(os.path.join(outputDirectory, "allIndexedHost.txt"), "wb")
                 
     def printLog(self, strLog):
         
@@ -43,15 +45,26 @@ class IndexSpliter:
     
     def dumpHostURLs(self, strURLsInfo, hostName):
         
-        if len(strURLsInfo) == 0:
-            self.printLog("No URL Found For Host: " + hostName)
-        else:
-            self.saveURLInfo(hostName +" "+ strURLsInfo[0] + " start\n", int(strURLsInfo[0].split(" ")[0]) - 1)
+        try:
+            #self.debugFileForHost.write(hostName +" "+ str(len(strURLsInfo)) + "\n");
             
-            for i in range(1, len(strURLsInfo)-1):
-                self.saveURLInfo(hostName +" "+ strURLsInfo[i] + " continue\n", int(strURLsInfo[i].split(" ")[0]) - 1)
+            if len(strURLsInfo) == 0:
+                self.printLog("No URL Found For Host: " + hostName)
+            else:
+                self.saveURLInfo(hostName +" "+ strURLsInfo[0] + " start\n", int(strURLsInfo[0].split(" ")[0]) - 1)
                 
-            self.saveURLInfo(hostName +" "+ strURLsInfo[-1] + " end\n", int(strURLsInfo[-1].split(" ")[0]) - 1)
+                for i in range(1, len(strURLsInfo)-1):
+                    self.saveURLInfo(hostName +" "+ strURLsInfo[i] + " continue\n", int(strURLsInfo[i].split(" ")[0]) - 1)
+                    
+                self.saveURLInfo(hostName +" "+ strURLsInfo[-1] + " end\n", int(strURLsInfo[-1].split(" ")[0]) - 1)
+        except:
+            #print strURLsInfo
+            print "HOSTNAME: ", hostName
+            print "Exception in dumpHostURLs"
+            print "[Exception] ", sys.exc_info()
+            print "HostName: ", hostName
+            #sys.exit(1)
+            
                 
     def processIndexFile(self, thisIndexFile):
         
@@ -73,7 +86,7 @@ class IndexSpliter:
                 
                 if len(line) == 0:
                     break
-                
+                                                                
                 if line.startswith("<"):                    
                     if line.startswith("</"):
                         self.dumpHostURLs(strHostURLsInfo, currentHostName)
@@ -122,8 +135,9 @@ class IndexSpliter:
         folderName = os.path.join(self.inputDirectory, "WebSite/Content/")
         
         for fileName in os.listdir(folderName):            
-            if fileName.endswith(".INDEX"):
+            if fileName.endswith(".IndexDateTime"):
                 self.processIndexFile(os.path.join(folderName, fileName))
+
         
         for i in range(len(self.fileContentIndexBlock)):
             self.closeFile(self.fileContentIndexBlock[i])
@@ -233,6 +247,7 @@ class URLInfo:
         self.hostName = ""
         self.status = ""
         self.isValid = ""
+        self.crawlTime = ""
 
     def setValues(self, thisValues):
         
@@ -243,10 +258,15 @@ class URLInfo:
         self.contentStartByte = long(thisValues[4])
         self.contentEndByte = long(thisValues[5])
         self.isValid = thisValues[6]
-        self.status = thisValues[7]
+        self.status = thisValues[-1]
+        if len(thisValues) >= 10:
+            self.crawlTime = thisValues[7] + " " + thisValues[8] + " " + thisValues[9]
         
     def get(self):
-        return self.hostName + " " + str(self.contentNo) + " " + str(self.urlStartByte) + " " + str(self.urlEndByte) + " " + str(self.contentStartByte) + " " + str(self.contentEndByte) + " " + str(self.isValid) + " " + str(self.status)
+        conditionalSpaceAfterCrawlTime = ""
+        if len(self.crawlTime) > 0:
+            conditionalSpaceAfterCrawlTime = " ";
+        return self.hostName + " " + str(self.contentNo) + " " + str(self.urlStartByte) + " " + str(self.urlEndByte) + " " + str(self.contentStartByte) + " " + str(self.contentEndByte) + " " + str(self.isValid) + " " + str(self.crawlTime) + conditionalSpaceAfterCrawlTime + str(self.status)
 
 def compareValue(xValue, yValue):
 
@@ -262,7 +282,7 @@ def compare(xURLInfo, yURLInfo):
 
 if __name__ == "__main__":
     
-    indexSpliter = IndexSpliter("\\\\192.168.1.68\\NewLargestData\\HostData")
+    indexSpliter = IndexSpliter(r"F:\AmazonCloudFDirveSAFourIndex\IndexFiles\HostData", r"F:\AmazonCloudFDirveSAFourIndex\IndexFiles\HostData\Scripts\DirectoryDetector")
     indexSpliter.split()
         
     #urlInfo = [URLInfo(), URLInfo(), URLInfo(), URLInfo()]

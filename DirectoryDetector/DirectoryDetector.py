@@ -9,6 +9,7 @@ from tkCommonDialog import Dialog
 import tkFileDialog
 from FileDialog import FileDialog
 from LinkDb import LinkDb
+from TypeDetector import TypeDetector
 
 class DirectoryDetector(Reader):
     
@@ -179,34 +180,34 @@ class DirectoryDetector(Reader):
         
         self.printLog("LinkDB Writer Started For Host: "+ thisHostName)
         
-        cDir = os.path.join(self.inputDirectory, "WebSite/LinkDB/")        
-        configFileLocation = self.outputDirectory + "/config.txt"
-        
-        #print "InputDirectory: ", self.inputDirectory
-        #print "cDir: ", cDir
-        #print "configFileLocation: ", configFileLocation
-        
-        if os.path.exists(configFileLocation):            
-            configRead=open(configFileLocation,'r')
-        else:
-            configRead=open(configFileLocation,'w')
-            
-        configRead.close()
-        tempHostName = thisHostName
-        
-        hostFileLoc = os.path.join(cDir, tempHostName)
-        
-        if not os.path.exists(hostFileLoc):
-            tempHostName += ".tar"          
-        
-        if os.path.exists(os.path.join(cDir, tempHostName)):
-            
-            try:
-                linkDB = LinkDb()        
-                linkDB.doCrawl(tempHostName, cDir, self.outputDirectory, "RESTART")
-                self.printLog("LinkDB Writer Finished For Host: "+ tempHostName)
-            except:
-                print "Error: in LinkDB: ", tempHostName
+##        cDir = os.path.join(self.inputDirectory, "WebSite/LinkDB/")        
+##        configFileLocation = self.outputDirectory + "/config.txt"
+##        
+##        #print "InputDirectory: ", self.inputDirectory
+##        #print "cDir: ", cDir
+##        #print "configFileLocation: ", configFileLocation
+##        
+##        if os.path.exists(configFileLocation):            
+##            configRead=open(configFileLocation,'r')
+##        else:
+##            configRead=open(configFileLocation,'w')
+##            
+##        configRead.close()
+##        tempHostName = thisHostName
+##        
+##        hostFileLoc = os.path.join(cDir, tempHostName)
+##        
+##        if not os.path.exists(hostFileLoc):
+##            tempHostName += ".tar"          
+##        
+##        if os.path.exists(os.path.join(cDir, tempHostName)):
+##            
+##            try:
+##                linkDB = LinkDb()        
+##                linkDB.doCrawl(tempHostName, cDir, self.outputDirectory, "RESTART")
+##                self.printLog("LinkDB Writer Finished For Host: "+ tempHostName)
+##            except:
+##                print "Error: in LinkDB: ", tempHostName
         
     def getTagData(self, thisData, stTag, endTag):
         
@@ -349,6 +350,14 @@ class DirectoryDetector(Reader):
             directorySorter = DirectorySorter()
             #directorySorter.sort(os.path.join(self.outputDirectory, "BusinessDirectoryList.xml"))
             directorySorter.sort(self.outputDirectory)
+
+            self.printLog("Type Detector Started");
+
+            typeDetector = TypeDetector(self.inputDirectory, self.outputDirectory)
+            typeDetector.detect()
+
+            self.printLog("Type Detector Finished");
+            
             self.printLog("Directory Detection Finished")
             
         except:
@@ -432,8 +441,8 @@ class DataProcessor:
         cntPhone = self.parser.keywordFrePhone.size()
         cntPhoneTag = self.parser.keywordFreTag.size()
         
-        if cntPhone != 0 or cntPhoneTag != 0:
-            self.totalDataFoundPages += 1           
+        #if cntPhone != 0 or cntPhoneTag != 0:
+        #    self.totalDataFoundPages += 1           
             
         totalPhones = cntPhone + cntPhoneTag
         
@@ -452,9 +461,14 @@ class DataProcessor:
         strKeyTag, strFreTag = self.parser.keywordFreTag.get()
                 
         strByteInfo = str(urlInfo.contentNo) + " " + str(urlInfo.urlStartByte) + " " + str(urlInfo.urlEndByte) + " " + str(urlInfo.contentStartByte) + " " + str(urlInfo.contentEndByte) + " " + str(urlInfo.isValid) 
+
+
+        self.totalDataFoundPages += 1
         
         strData = "\n\t\t<URL_INFO>"
         strData += "\n\t\t\t<URL>" + thisURL + "</URL>"
+        if len(urlInfo.crawlTime) > 0:
+            strData += "\n\t\t\t<CRAWL_TIME>" + urlInfo.crawlTime + "</CRAWL_TIME>"
         strData += "\n\t\t\t<KEYWORD_INFO>"
         strData += "\n\t\t\t\t<KEYWORDS>" + strKeyPhone + "</KEYWORDS>"
         strData += "\n\t\t\t\t<FREQUENCIES>" + strFrePhone + "</FREQUENCIES>"
@@ -490,7 +504,7 @@ if __name__ == '__main__':
     #fileChooser = FileChooser()
     #strInputLocation = fileChooser.askForDirectory()
     #print strInputLocation
-    directoryDetector = DirectoryDetector()
+    directoryDetector = DirectoryDetector("D:/HostData","D:/Data")
     directoryDetector.detect()
         
         
