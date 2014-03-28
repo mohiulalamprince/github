@@ -35,9 +35,9 @@ URL_SEEN_BLOCK_PATH = "UrlSeenBlock"
 CONTENT_PATH = "Content"
 RECENT_HOST_LIST_FILE="RecentHostList.txt"
 
-CRAWLER_HOST_CONF_PATH = r"H:\nelly\HostData\HostConf"
-CRAWLER_LINKDB_PATH = r"H:\nelly\HostData\WebSite\LinkDB\www.nelly.com\www.nelly.com\nelly\HostData" + "\\" + WEBSITE_PATH + "\\" + LINKDB_PATH
-CRAWLER_CONTENT_DATA_PATH = r"H:\nelly\HostData" + "\\" + WEBSITE_PATH + "\\" + CONTENT_PATH
+CRAWLER_HOST_CONF_PATH = r"O:\business-directory\HostData/HostConf"
+CRAWLER_LINKDB_PATH = r"O:\business-directory\HostData" + "\\" + WEBSITE_PATH + "\\" + LINKDB_PATH
+CRAWLER_CONTENT_DATA_PATH = r"O:\business-directory\HostData" + "\\" + WEBSITE_PATH + "\\" + CONTENT_PATH
                        
 
 class URLInfo():
@@ -69,7 +69,11 @@ class ConfigUtil():
                         except: 
                             if (DEBUG == True):
                                 print str(traceback.print_exc(file=sys.stdout))
-        content_byte_info = last_line.split(".html")[1].split(' ')
+        try:
+            content_byte_info = last_line.split(".html")[1].split(' ')
+        except:
+            print "INVALID last_line"
+            return
 
         if (len(content_byte_info) >= 6):
             self.last_downloaded_url_byte_info.content_id = content_byte_info[1]
@@ -528,7 +532,7 @@ class DownloadLinkPathRecover():
 
         last_line = None
         last_line_byte_info = None
-        
+
         for counter in range(0, 10):        
             length = len(link_extraction_block_filelist) - counter
             try:
@@ -740,4 +744,12 @@ class Configuration():
             file_pointer.write("http://" + host_name + "/\\n")
 
 configuration = Configuration()
-configuration.recover("www.nelly.com")
+
+file_list = os.listdir(CRAWLER_LINKDB_PATH)
+
+for file in file_list:
+   if (file.endswith(".tar")):
+      pass
+   else:
+        configuration.recover(file.strip())
+

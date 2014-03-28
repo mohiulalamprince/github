@@ -4,7 +4,7 @@ totalDocumentFound = 0
 hostCounter = 1
 
 totalIndexFiles = 1
-contentDirPath = "\\\\192.168.1.68\\NewLargestData\\HostData\\WebSite\\Content\\"
+contentDirPath = r"D:\TopBusinessDirectory\HostData\WebSite\Content/"
 statFileNamePrefix = "stat_hostLargestData"
 
 def sizeOutput(sz):

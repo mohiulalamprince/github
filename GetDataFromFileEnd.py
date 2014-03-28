@@ -77,8 +77,8 @@ class GetDataFromFileEnd:
 
 if __name__ == "__main__":
 
-    fileName = "F:\\OfficeWork\\Development\\BusinessSearch\\Working\\Python Scripts\\Profiles.xml"
-    size = 1
+    fileName = "E:\\SouthAfricaThree\\HostData\\WebSite\\Content\\15.CONTENT"
+    size = 500
     getDataFromFileEnd = GetDataFromFileEnd()
     getDataFromFileEnd.get(fileName, size)
 

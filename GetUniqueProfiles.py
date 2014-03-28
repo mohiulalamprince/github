@@ -121,7 +121,7 @@ class GetUniqueProfiles:
 
 if __name__ == "__main__":
     
-    path = r"F:\OfficeWork\Development\BusinessSearch\Release\DataRelease 29-06-2011\Part with lat lng"
+    path = r"D:\Data\ProfileCollection\BusinessProfiles\www.roodepoortinfo.co.za\unique"
     getUniqueProfiles = GetUniqueProfiles()
     
     for fileName in os.listdir(path):

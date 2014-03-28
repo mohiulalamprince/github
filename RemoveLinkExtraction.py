@@ -2,7 +2,7 @@ import os
 import sys
 import shutil
 
-linkDBLocation = r"C:\LinkDB"
+linkDBLocation = r"D:\RestOfTopBusinessDirectory\HostData\WebSite\LinkDB"
 
 for fileName in os.listdir(linkDBLocation):
     if os.path.isdir(os.path.join(linkDBLocation, fileName)):

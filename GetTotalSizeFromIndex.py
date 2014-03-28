@@ -71,7 +71,7 @@ class GetTotalSizeFromIndex:
         
 if __name__ == "__main__":
     
-    getTotalSizeFromIndex = GetTotalSizeFromIndex(r"E:\ReCrawlHostDataLargest\HostData")
+    getTotalSizeFromIndex = GetTotalSizeFromIndex(r"D:\TopBusinessDirectory\HostData")
     getTotalSizeFromIndex.getSize()
                     
                     
