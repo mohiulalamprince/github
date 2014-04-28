@@ -35,9 +35,10 @@ URL_SEEN_BLOCK_PATH = "UrlSeenBlock"
 CONTENT_PATH = "Content"
 RECENT_HOST_LIST_FILE="RecentHostList.txt"
 
-CRAWLER_HOST_CONF_PATH = r"O:\business-directory\HostData/HostConf"
-CRAWLER_LINKDB_PATH = r"O:\business-directory\HostData" + "\\" + WEBSITE_PATH + "\\" + LINKDB_PATH
-CRAWLER_CONTENT_DATA_PATH = r"O:\business-directory\HostData" + "\\" + WEBSITE_PATH + "\\" + CONTENT_PATH
+CRAWLER_HOST_DATA_PATH = r"O:\test\HostData"
+CRAWLER_HOST_CONF_PATH = CRAWLER_HOST_DATA_PATH + "\\" + "HostConf"
+CRAWLER_LINKDB_PATH = CRAWLER_HOST_DATA_PATH + "\\" + WEBSITE_PATH + "\\" + LINKDB_PATH
+CRAWLER_CONTENT_DATA_PATH = CRAWLER_HOST_DATA_PATH + "\\" + WEBSITE_PATH + "\\" + CONTENT_PATH
                        
 
 class URLInfo():
@@ -743,13 +744,22 @@ class Configuration():
         with open(CRAWLER_HOST_CONF_PATH + "\\" + "RecentHostList.txt", 'a') as file_pointer:
             file_pointer.write("http://" + host_name + "/\\n")
 
-configuration = Configuration()
+def recover_configuration():
+    configuration = Configuration()
 
-file_list = os.listdir(CRAWLER_LINKDB_PATH)
+    file_list = os.listdir(CRAWLER_LINKDB_PATH)
 
-for file in file_list:
-   if (file.endswith(".tar")):
-      pass
-   else:
-        configuration.recover(file.strip())
+    for file in file_list:
+        if (file.endswith(".tar") == False):
+            stat_info = os.stat(os.path.join(CRAWLER_LINKDB_PATH, file, DOWNLOAD_LINK_PATH, "1.linkPath"))
 
+        if (file.endswith(".tar")):
+            pass
+        elif (os.path.exists(os.path.join(CRAWLER_LINKDB_PATH, file , CONF_PATH)) == False):
+            print "Host: http://" + str(file) + "/  ...  ...  ...   [SKIPPED]"
+        elif (stat_info.st_size == 0):
+            print "Host: http://" + str(file) + "/  ...  ...  ...   [SKIPPED]"
+        else:
+            configuration.recover(file.strip())
+
+recover_configuration()
